@@ -1,0 +1,61 @@
+import Functions as f
+import numpy as np
+from Clairvoyant import Clairvoyant
+
+class Clairvoyant_non_stationary(Clairvoyant):
+    
+    def __init__(self, non_stationary_env ,class_features , arms):
+        super().__init__(non_stationary_env ,class_features , arms)
+        
+        
+class Clairvoyant_pricing_non_stationary(Clairvoyant_non_stationary):
+    
+    def __init__(self,non_stationary_env, class_features , arms):
+        super().__init__(non_stationary_env , class_features , arms)
+        
+    def expected_reward(self,arm):
+        current_phase=self.enviroment.current_phase
+        #parameters
+        conv_prob=self.classe['prob'][arm][current_phase]
+        
+        #reward
+        expected_reward=conv_prob*arm
+        
+        return expected_reward
+    
+    def optimal_arm(self):
+        rewards=np.zeros(len(self.arms))
+        for i in range(len(self.arms)):
+            rewards[i]=self.expected_reward(self.arms[i])
+            
+        return self.arms[np.argmax(rewards)]
+            
+        
+
+class Clairvoyant_bid_non_stationary(Clairvoyant_non_stationary):
+    
+    def __init__(self , non_stationary_env , class_features , arms):
+        super().__init__(non_stationary_env , class_features , arms)
+        
+    def expected_reward(self,arm , optimal_price):
+        #parameters
+
+        daily_click_params=self.classe['num_of_click_params']
+        conv_prob=self.classe['prob'][optimal_price][self.enviroment.current_phase]
+        cum_daily_cost_param=self.classe['cumulative_cost_params']
+        
+        #quantities to generate
+        clicks=f.number_of_clicks_given_bid(arm , daily_click_params[0] , daily_click_params[1] , daily_click_params[2])
+        cum_daily_cost=f.cumulative_daily_cost(arm , cum_daily_cost_param)
+        
+        #reward
+        expected_reward=clicks*conv_prob*optimal_price - cum_daily_cost
+        
+        return expected_reward
+    
+    def optimal_arm(self,optimal_price):
+        rewards=np.zeros(len(self.arms))
+        for i in range(len(self.arms)):
+            rewards[i]=self.expected_reward(self.arms[i],optimal_price)
+            
+        return self.arms[np.argmax(rewards)]
