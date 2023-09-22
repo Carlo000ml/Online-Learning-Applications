@@ -1,0 +1,2 @@
+Since the computational time for point 4B was very high, we have run the code on different machines in parallel and then merged the results. Therefore the results 
+presents in the notebook are not the same of the slides. In the notebook just 2 runs have been done. Totally 10 runs have been done to obtain the results of the slides.
